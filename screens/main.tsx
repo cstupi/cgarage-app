@@ -29,7 +29,6 @@ export default ({ navigation }: any) => {
     if(!done)
       setView()
   },[done, selected, options])
-  console.log(options)
   return (
     <View>
       <Button
@@ -49,7 +48,7 @@ export default ({ navigation }: any) => {
       {
         sites[selected] == null ?  <View></View> : <View>
            {sites[selected].Doors.map((d: DoorSetting, i: number) => {
-             <Button key={i} title={d.Label} onPress={() => callGarage(d.Pin)} />
+             return <Button key={i} title={d.Label} onPress={() => callGarage(d.Pin)} />
            })}
           </View>
       }
