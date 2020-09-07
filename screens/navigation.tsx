@@ -3,7 +3,9 @@ import { NavigationContainer, StackActions } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import Main from './main'
 import Settings from './settings'
-
+import siteEdit from './siteEdit'
+import { Button } from 'react-native'
+import { Auth } from 'aws-amplify'
 const Stack = createStackNavigator()
 
 const navigation = () => {
@@ -13,12 +15,17 @@ const navigation = () => {
         <Stack.Screen
           name="Home"
           component={Main}
-          options={{ title: 'Welcome' }}
+          options={{ title: 'Garage Door' }}
         />
         <Stack.Screen 
           name="Settings" 
           component={Settings}
-          options={{ title: 'Settings'}}
+          options={{ title: 'Sites' }}
+        />
+        <Stack.Screen 
+          name="siteEdit" 
+          component={siteEdit}
+          options={{ title: 'Edit Site' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

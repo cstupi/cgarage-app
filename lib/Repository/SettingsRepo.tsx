@@ -1,13 +1,12 @@
 import { AsyncStorage } from "react-native";
 
-import ISettingsRepo from "./ISettingsRepo";
 import SiteSetting from './SiteSetting'
 
 const key = 'cgarage'
 
-export default class SettingRepo implements ISettingsRepo {
+export default class SettingsRepo {
   constructor() {}
-  async Get(): Promise<Record<string,SiteSetting>> {
+  static async Get(): Promise<Record<string,SiteSetting>> {
     try {
       const strVal = await AsyncStorage.getItem(key)
       if(!strVal){
@@ -18,7 +17,7 @@ export default class SettingRepo implements ISettingsRepo {
       throw err // just throw for now
     }
   }
-  async Set(setting: Record<string, SiteSetting>): Promise<void> {
+  static async Set(setting: Record<string, SiteSetting>): Promise<void> {
     try {
       if(setting == null)
         await AsyncStorage.removeItem(key)
@@ -28,7 +27,7 @@ export default class SettingRepo implements ISettingsRepo {
       throw err //just throw for now
     }
   }
-  async GetSite(name: string): Promise<SiteSetting> {
+  static async GetSite(name: string): Promise<SiteSetting> {
     try {
       const allSettings = await this.Get()
       return allSettings[name]
@@ -36,7 +35,7 @@ export default class SettingRepo implements ISettingsRepo {
       throw err // just throw for now
     }
   }
-  async SetSite(setting: SiteSetting): Promise<void> {
+  static async SetSite(setting: SiteSetting): Promise<void> {
     try {
       const allSettings = await this.Get()
       allSettings[setting.Name] = setting
@@ -44,5 +43,10 @@ export default class SettingRepo implements ISettingsRepo {
     } catch(err) {
       throw err // just throw for now
     }
+  }
+  static async RemoveSite(name: string){
+    const allSettings = await this.Get()
+    delete allSettings[name]
+    this.Set(allSettings)
   }
 }
