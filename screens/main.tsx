@@ -1,21 +1,40 @@
 import * as React from 'react'
 import { StyleSheet, Text, View, Button } from 'react-native'
-import { StatusBar } from 'expo-status-bar';
 import SettingsRepo from '../lib/Repository/SettingsRepo';
 import SiteSetting from '../lib/Repository/SiteSetting'
 import DoorSetting from '../lib/Repository/DoorSetting'
 import { useEffect } from 'react';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
-const callGarage = (pin: number) => {
-  console.log(`pin ${pin} was selected`)
-}
+import { Auth } from 'aws-amplify';
 
-export default ({ navigation }: any) => {
+export default ({ navigation, route }: any) => {
   
   const [sites, setSites] = React.useState({} as Record<string, SiteSetting>)
   const [options, setOptions] = React.useState([] as string[])
   const [selected, setSelected] = React.useState('')
-  const [done, setDone] = React.useState(false)
+  const [callPin, setCallPin] = React.useState(-1)
+  const callGarage = (pin: number) => {
+    console.log(`pin ${pin} was selected`)
+    const call = async () => {
+      const userData = await Auth.currentSession()
+      try {
+        console.log(userData.accessToken.jwtToken)
+        const result = await fetch(`${sites[selected].URL ?? ''}/garage/api/garagedoor/${pin}`, { headers: new Headers({ 'authorization': userData.accessToken.jwtToken})})
+
+       console.log(result.status)
+
+       console.log(await result.json())
+      } catch(err){
+        console.log(err)
+      }
+      
+    }
+    if(callPin != -1)
+      call().then(() => setCallPin(-1)).catch(() => setCallPin(-1))
+
+  }
+
   useEffect(() => {
     const setView = async () => {
       const settings = await SettingsRepo.Get()
@@ -24,40 +43,73 @@ export default ({ navigation }: any) => {
       setSites(settings)
       setOptions(Object.keys(settings))
       setSelected(options[0] ?? '')
-      setDone(true)
     }
-    if(!done)
-      setView()
-  },[done, selected, options])
+    setView()
+  },[selected, options])
+
+  useEffect(() => {
+    callGarage(callPin)
+  }, [callPin])
+
   return (
-    <View>
-      <Button
-        title="Settings"
-        onPress={() =>
-          navigation.navigate('Settings')
+    <View style={styles.container}>
+      <View style={styles.settingBtn}>
+        <Button
+          title="S"
+          onPress={() =>
+            navigation.navigate('Settings')
+          }
+        />
+      </View>
+      <View style={styles.optionRow}>
+        {options.map((o: string, i: number) => {
+            return <View style={styles.optionBtn} key={i}><Button
+              title={o}
+              onPress={() => setSelected(o)}
+            /></View>
+          })
         }
-      />
-      {options.map((o: string, i: number) => {
-          return <Button
-            key={i}
-            title={o}
-            onPress={() => setSelected(o)}
-          />
-        })
-      }
-      {
-        sites[selected] == null ?  <View></View> : <View>
-           {sites[selected].Doors.map((d: DoorSetting, i: number) => {
-             return <Button key={i} title={d.Label} onPress={() => callGarage(d.Pin)} />
-           })}
-          </View>
-      }
+      </View>
+      <View>
+        {
+          sites[selected] == null ?  <View></View> : <View style={styles.doorRow}>
+            {sites[selected].Doors.map((d: DoorSetting, i: number) => {
+              return <TouchableOpacity style={styles.doorBtn} key={i} onPress={() => setCallPin(d.Pin)} ><Text style={styles.doorBtn}>{d.Label}</Text></TouchableOpacity>
+            })}
+            </View>
+        }
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-
+    marginTop: 20
+  },
+  settingBtn: {
+    height: 50,
+    width: 50,
+    alignSelf: "flex-end",
+    right: 5
+  },
+  optionRow: {
+    flexDirection:"row"
+  },
+  optionBtn: {
+    width: 100
+  },
+  doorRow: {
+    marginTop: 10
+  },
+  doorBtn: {
+    marginTop: 30,
+    height: 100,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 18,
+    borderColor:"black",
+    backgroundColor: "lightblue"
   }
+
 })

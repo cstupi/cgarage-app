@@ -13,7 +13,7 @@ Amplify.configure({
     userPoolWebClientId: awsConfig.USER_POOL_CLIENT_ID,
     Analytics: {
       disabled: true,
-    }   
+    }
   }
 })
  
@@ -22,6 +22,11 @@ export default withAuthenticator(App)
 
 function App() {
   return (
-      <Nav />
+      <Nav  />
   )
 }
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 50,
+  }
+})

@@ -6,7 +6,6 @@ import DoorSetting from '../lib/Repository/DoorSetting'
 import SettingsRepo from '../lib/Repository/SettingsRepo' // TODO: Better repo/state
 export default ({ navigation, route }: any) => {
   const site = route.params?.site as SiteSetting ?? { Name: '', URL: '', Doors: [] }
-  console.log(site)
   const [edited, setSite] = React.useState(JSON.parse(JSON.stringify(site))); 
   const [doorLabel, setDoorLabel] = React.useState('')
   const [doorPin, setDoorPin] = React.useState(-1)
@@ -21,6 +20,10 @@ export default ({ navigation, route }: any) => {
     }
     save()
   }, [saving])
+  useEffect(() => {
+    
+  })
+
   return (
     <View>
       <TextInput
